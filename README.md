@@ -21,7 +21,7 @@ RouteWise Hillingdon turns a manual, rigid waste-collection planning process int
 
 ### Live route-planning dashboard
 
-![RouteWise Hillingdon dashboard](docs/images/readme/dashboard-overview.png)
+![RouteWise Hillingdon dashboard](docs/images/readme/dashboard-road-graph-hero.png)
 
 ### Road-following route reference map and active fleet cards
 
