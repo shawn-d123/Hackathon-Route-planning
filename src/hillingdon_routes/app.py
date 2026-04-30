@@ -252,6 +252,7 @@ def _metric_card(label: str, value: str, detail: str) -> None:
     st.markdown(
         f"""
         <div class="metric-card">
+            <div class="metric-shine"></div>
             <div class="metric-label">{label}</div>
             <div class="metric-value">{value}</div>
             <div class="metric-detail">{detail}</div>
@@ -261,13 +262,349 @@ def _metric_card(label: str, value: str, detail: str) -> None:
     )
 
 
+def _render_page_styles() -> None:
+    """Apply visual styling without changing Streamlit control behaviour."""
+    st.markdown(
+        """
+        <style>
+        :root {
+            --route-ink: #111827;
+            --route-muted: #64748b;
+            --route-line: #d8dee8;
+            --route-soft: #f7fafc;
+            --route-blue: #2563eb;
+            --route-green: #16a34a;
+            --route-yellow: #facc15;
+        }
+
+        .stApp {
+            background:
+                radial-gradient(circle at 18% 0%, rgba(37, 99, 235, 0.09), transparent 30rem),
+                linear-gradient(180deg, #f8fafc 0%, #eef4f8 54%, #f8fafc 100%);
+        }
+
+        [data-testid="stHeader"] {
+            background: rgba(248, 250, 252, 0.78);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(216, 222, 232, 0.75);
+        }
+
+        [data-testid="stSidebar"] {
+            background: #ffffff;
+            border-right: 1px solid var(--route-line);
+        }
+
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+            color: var(--route-ink);
+            letter-spacing: 0;
+        }
+
+        .block-container {
+            max-width: 1500px;
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        .route-hero {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(216, 222, 232, 0.95);
+            border-radius: 8px;
+            padding: 24px 28px;
+            margin-bottom: 18px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 247, 252, 0.94)),
+                repeating-linear-gradient(135deg, rgba(37, 99, 235, 0.07) 0 1px, transparent 1px 18px);
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+        }
+
+        .route-hero::after {
+            content: "";
+            position: absolute;
+            inset: auto 22px 18px auto;
+            width: 280px;
+            height: 84px;
+            border-top: 2px solid rgba(22, 163, 74, 0.42);
+            border-right: 2px solid rgba(37, 99, 235, 0.32);
+            transform: skewX(-18deg);
+            opacity: 0.75;
+        }
+
+        .hero-eyebrow {
+            color: var(--route-blue);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            color: var(--route-ink);
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 800;
+            line-height: 1.02;
+            margin: 0;
+            letter-spacing: 0;
+        }
+
+        .hero-copy {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.55;
+            max-width: 760px;
+            margin-top: 12px;
+            margin-bottom: 18px;
+        }
+
+        .hero-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 6px 10px;
+            border: 1px solid rgba(203, 213, 225, 0.95);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.78);
+            color: #334155;
+            font-size: 0.78rem;
+            font-weight: 700;
+            box-shadow: 0 5px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 128px;
+            border: 1px solid rgba(216, 222, 232, 0.96);
+            border-radius: 8px;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .metric-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--route-blue), var(--route-green));
+        }
+
+        .metric-shine {
+            position: absolute;
+            inset: 0 0 auto auto;
+            width: 112px;
+            height: 112px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 68%);
+        }
+
+        .metric-label {
+            position: relative;
+            color: #526071;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            position: relative;
+            color: var(--route-ink);
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: 0;
+        }
+
+        .metric-detail {
+            position: relative;
+            color: var(--route-muted);
+            font-size: 0.84rem;
+            margin-top: 9px;
+        }
+
+        .map-shell {
+            border: 1px solid rgba(216, 222, 232, 0.95);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        .section-panel {
+            border: 1px solid rgba(216, 222, 232, 0.92);
+            border-radius: 8px;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .section-title {
+            color: var(--route-ink);
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .section-copy {
+            color: var(--route-muted);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .comparison-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid #e5eaf0;
+            padding: 8px 0;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .comparison-row:last-child {
+            border-bottom: 0;
+        }
+
+        .comparison-row strong {
+            color: var(--route-ink);
+            white-space: nowrap;
+        }
+
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+            border-bottom: 1px solid #d8dee8;
+        }
+
+        .stTabs [data-baseweb="tab"] {
+            border-radius: 8px 8px 0 0;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #e5eaf0;
+            border-bottom: 0;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .stTabs [aria-selected="true"] {
+            background: #ffffff;
+            color: var(--route-blue);
+            box-shadow: 0 -2px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        [data-testid="stDataFrame"] {
+            border: 1px solid rgba(216, 222, 232, 0.95);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        div[data-testid="stAlert"] {
+            border-radius: 8px;
+            border: 1px solid rgba(203, 213, 225, 0.95);
+        }
+
+        .stButton > button {
+            border-radius: 8px;
+            font-weight: 800;
+            min-height: 2.65rem;
+        }
+
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, var(--route-blue), #1d4ed8);
+            border: 0;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_header() -> None:
+    """Render the dashboard header."""
+    st.markdown(
+        """
+        <section class="route-hero">
+            <div class="hero-eyebrow">RouteIQ operations dashboard</div>
+            <h1 class="hero-title">Hillingdon waste route optimiser</h1>
+            <div class="hero-copy">
+                Synthetic collection planning with route optimisation, road-network fallback,
+                closure scenarios, school-window awareness, and breakdown recovery.
+            </div>
+            <div class="hero-chip-row">
+                <span class="status-chip">Synthetic stops only</span>
+                <span class="status-chip">OpenStreetMap ready</span>
+                <span class="status-chip">Haversine fallback</span>
+                <span class="status-chip">No resident data</span>
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_comparison_panel(solution: VrpSolution, baseline_m: float) -> None:
+    """Render the comparison statistics with stronger visual hierarchy."""
+    baseline_km = baseline_m / METRES_PER_KM
+    optimised_km = solution.total_distance_m / METRES_PER_KM
+    st.markdown(
+        f"""
+        <div class="section-panel">
+            <div class="section-title">Comparison</div>
+            <div class="section-copy">Current scenario output against the simple baseline route.</div>
+            <div class="comparison-grid">
+                <div class="comparison-row"><span>Baseline route</span><strong>{baseline_km:.1f} km</strong></div>
+                <div class="comparison-row"><span>Optimised routes</span><strong>{optimised_km:.1f} km</strong></div>
+                <div class="comparison-row"><span>CO2 estimate</span><strong>{solution.total_co2_g / GRAMS_PER_KG:.1f} kg</strong></div>
+                <div class="comparison-row"><span>Solve time</span><strong>{st.session_state.last_runtime_s:.2f} s</strong></div>
+                <div class="comparison-row"><span>School-window visits</span><strong>{solution.school_violations}</strong></div>
+                <div class="comparison-row"><span>Peak multiplier</span><strong>{solution.peak_multiplier:.2f}</strong></div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _render_folium_map(fmap: Any, map_key: str) -> None:
     """Render a Folium component with a stable Streamlit key."""
+    st.markdown('<div class="map-shell">', unsafe_allow_html=True)
     st_folium(
         fmap,
         height=MAP_HEIGHT_PIXELS,
         use_container_width=True,
         key=map_key,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+def _render_section_intro(title: str, copy: str) -> None:
+    """Render a compact section header."""
+    st.markdown(
+        f"""
+        <div class="section-panel">
+            <div class="section-title">{title}</div>
+            <div class="section-copy">{copy}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -487,39 +824,10 @@ def main() -> None:
     """Run the Streamlit app."""
     st.set_page_config(page_title="Hillingdon Routes", layout="wide")
     _init_state()
-    st.markdown(
-        """
-        <style>
-        .metric-card {
-            border: 1px solid #d8dee8;
-            border-radius: 8px;
-            padding: 14px 16px;
-            background: #ffffff;
-        }
-        .metric-label {
-            color: #526071;
-            font-size: 0.82rem;
-            margin-bottom: 4px;
-        }
-        .metric-value {
-            color: #111827;
-            font-size: 1.7rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-        .metric-detail {
-            color: #64748b;
-            font-size: 0.82rem;
-            margin-top: 4px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    _render_page_styles()
 
     _render_sidebar()
-    st.title("Hillingdon waste route optimiser")
-    st.caption("Synthetic stops only. OpenStreetMap roads when available, haversine fallback when not.")
+    _render_header()
 
     if st.session_state.solution is None:
         with st.spinner("Building first scenario..."):
@@ -548,6 +856,10 @@ def main() -> None:
     ])
 
     with normal_tab:
+        _render_section_intro(
+            "Normal plan",
+            "Optimised service routes for the current synthetic collection round.",
+        )
         fmap, geometry_warnings = build_map(
             stops=stops,
             solution=solution,
@@ -569,8 +881,13 @@ def main() -> None:
         if st.session_state.closure_scenario == NO_CLOSURE_LABEL:
             st.info("Select a closure scenario in the sidebar and optimise to show a disrupted route.")
         else:
-            st.write(f"Active closure: {st.session_state.closure_scenario}")
-            st.write(f"Closed segments: {len(st.session_state.closed_edges)}")
+            _render_section_intro(
+                "Closure scenario plan",
+                (
+                    f"Active closure: {st.session_state.closure_scenario}. "
+                    f"Closed segments: {len(st.session_state.closed_edges)}."
+                ),
+            )
             fmap, geometry_warnings = build_map(
                 stops=stops,
                 solution=solution,
@@ -597,6 +914,10 @@ def main() -> None:
         else:
             if plan.warning:
                 st.warning(plan.warning)
+            _render_section_intro(
+                "Breakdown recovery plan",
+                f"Truck {plan.broken_truck + 1} is out of service and unfinished stops are reassigned.",
+            )
             fmap, geometry_warnings = build_map(
                 stops=stops,
                 solution=solution,
@@ -630,7 +951,10 @@ def main() -> None:
 
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.subheader("Vehicle plan")
+        _render_section_intro(
+            "Vehicle plan",
+            "Per-truck distance, loading, tipping, and finish-time summary.",
+        )
         st.dataframe(
             _vehicle_table(solution),
             use_container_width=True,
@@ -638,15 +962,7 @@ def main() -> None:
             key="vehicle_plan_table",
         )
     with col2:
-        baseline_km = baseline_m / METRES_PER_KM
-        optimised_km = solution.total_distance_m / METRES_PER_KM
-        st.subheader("Comparison")
-        st.write(f"Baseline route: {baseline_km:.1f} km")
-        st.write(f"Optimised routes: {optimised_km:.1f} km")
-        st.write(f"CO2 estimate: {solution.total_co2_g / GRAMS_PER_KG:.1f} kg")
-        st.write(f"Solve time: {st.session_state.last_runtime_s:.2f} seconds")
-        st.write(f"School-window visits: {solution.school_violations}")
-        st.write(f"Peak multiplier: {solution.peak_multiplier:.2f}")
+        _render_comparison_panel(solution, baseline_m)
 
 
 if __name__ == "__main__":
