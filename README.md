@@ -241,7 +241,3 @@ Generated OpenStreetMap caches are written to `cache/` and ignored by git.
 Built by **Team ETB** for the **Hillingdon Hackathon route-planning challenge**.
 
 ---
-
-## License
-
-No license file is currently included in this repository. Add a project license before using or distributing this code beyond the hackathon/demo context.
