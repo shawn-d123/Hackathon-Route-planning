@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hillingdon-route-planning"
+version = "0.1.0"
+description = "Streamlit route optimisation demo for synthetic Hillingdon waste collection rounds."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "streamlit==1.40.2",
+    "streamlit-folium==0.24.0",
+    "folium==0.18.0",
+    "ortools==9.11.4210",
+    "osmnx==1.9.4",
+    "networkx==3.3",
+    "scikit-learn==1.5.2",
+    "numpy==1.26.4",
+    "pandas==2.2.3",
+    "geopy==2.4.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

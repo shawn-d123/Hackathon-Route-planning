@@ -1,11 +1,17 @@
+# Local agent / IDE context
+.claude/
+
 # Generated data and caches
-data/
 cache/
+.cache/
+data/generated/
+data/cache/
 *.pkl
 *.csv
 
 # Python
 __pycache__/
+.pytest_cache/
 *.py[cod]
 *$py.class
 *.so
@@ -40,7 +46,6 @@ Thumbs.db
 # Logs and temp
 *.log
 *.tmp
-.cache/
 
 # Environment files
 .env
