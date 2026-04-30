@@ -218,6 +218,13 @@ def draw_vehicle_route_geometry_on_map(
         return
     folium.PolyLine(
         coords,
+        color="#000000",
+        weight=11 if not is_broken else 9,
+        opacity=0.35,
+        dash_array="8, 8" if is_broken else None,
+    ).add_to(fmap)
+    folium.PolyLine(
+        coords,
         color=BROKEN_TRUCK_COLOUR if is_broken else colour,
         weight=7 if not is_broken else 6,
         opacity=0.9 if not is_broken else 0.55,
@@ -296,6 +303,14 @@ def draw_breakdown_marker_on_map(
     """Draw the broken truck location."""
     if breakdown_plan is None:
         return
+    html = """
+    <div style="
+        width:34px;height:34px;border-radius:17px;
+        display:grid;place-items:center;
+        background:#ff5757;color:#fff;font-weight:900;
+        border:2px solid #fff;
+        box-shadow:0 0 22px rgba(255,87,87,0.75);">!</div>
+    """
     folium.Marker(
         location=breakdown_plan.breakdown_location,
         tooltip=f"Vehicle {breakdown_plan.broken_truck + 1} breakdown",
@@ -303,7 +318,7 @@ def draw_breakdown_marker_on_map(
             f"Vehicle {breakdown_plan.broken_truck + 1} out of service after "
             f"{breakdown_plan.breakdown_after} completed stops"
         ),
-        icon=folium.Icon(color="black", icon="wrench", prefix="fa"),
+        icon=folium.DivIcon(html=html, icon_size=(34, 34), icon_anchor=(17, 17)),
     ).add_to(fmap)
 
 
@@ -326,16 +341,16 @@ def _numbered_stop_marker(
     html = f"""
     <div style="
         background:{colour};
-        color:white;
-        border:2px solid white;
+        color:#050606;
+        border:2px solid rgba(255,255,255,0.92);
         border-radius:14px;
         width:28px;
         height:28px;
         line-height:24px;
         text-align:center;
         font-size:12px;
-        font-weight:700;
-        box-shadow:0 1px 4px rgba(0,0,0,0.35);">
+        font-weight:900;
+        box-shadow:0 0 16px {colour};">
         {order}
     </div>
     """
@@ -402,11 +417,19 @@ def _add_tip_markers(
         else:
             location = (DEPOT_LAT, DEPOT_LNG)
             label = "Tip at depot"
+        tip_html = """
+        <div style="
+            width:30px;height:30px;border-radius:15px;
+            display:grid;place-items:center;
+            background:#ff8a1f;color:#041011;font-weight:900;
+            border:2px solid #fff;
+            box-shadow:0 0 16px rgba(255,138,31,0.72);">T</div>
+        """
         folium.Marker(
             location=location,
             tooltip=label,
             popup=f"{label}, vehicle {tip.vehicle + 1}",
-            icon=folium.Icon(color=TIP_ICON_COLOUR, icon="refresh", prefix="fa"),
+            icon=folium.DivIcon(html=tip_html, icon_size=(30, 30), icon_anchor=(15, 15)),
         ).add_to(fmap)
 
 
@@ -429,7 +452,7 @@ def _add_legend(
         )
     if peak_zones_active:
         rows.append(
-            "<div><span style='background:#dc2626;display:inline-block;width:12px;"
+            "<div><span style='background:#ff5757;display:inline-block;width:12px;"
             "height:12px;margin-right:6px;opacity:0.45;'></span>Peak traffic zone</div>"
         )
     if school_zones_active:
@@ -439,7 +462,7 @@ def _add_legend(
         )
     if breakdown_active:
         rows.append(
-            "<div><span style='background:#111827;display:inline-block;width:12px;"
+            "<div><span style='background:#ff5757;display:inline-block;width:12px;"
             "height:12px;margin-right:6px;'></span>Breakdown point</div>"
         )
     if not rows:
@@ -487,11 +510,19 @@ def build_map(
     school_adjacent_stop_ids = school_adjacent_stop_ids or set()
     closed_edges = closed_edges or []
 
+    depot_html = """
+    <div style="
+        width:36px;height:36px;border-radius:18px;
+        display:grid;place-items:center;
+        background:#2df2e6;color:#041011;font-weight:900;
+        border:2px solid #fff;
+        box-shadow:0 0 22px rgba(45,242,230,0.72);">D</div>
+    """
     folium.Marker(
         location=depot,
         tooltip=DEPOT_NAME,
         popup=DEPOT_NAME,
-        icon=folium.Icon(color=DEPOT_ICON_COLOUR, icon="recycle", prefix="fa"),
+        icon=folium.DivIcon(html=depot_html, icon_size=(36, 36), icon_anchor=(18, 18)),
     ).add_to(fmap)
 
     draw_peak_traffic_zones_on_map(fmap, get_peak_traffic_zones(), peak_zones_active)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import time
 import warnings
 from datetime import time as clock_time
@@ -37,6 +38,7 @@ from .config import (
     TIP_THRESHOLD_MAX_PERCENT,
     TIP_THRESHOLD_MIN_PERCENT,
     TIP_THRESHOLD_STEP_PERCENT,
+    VEHICLE_COLOURS,
 )
 from .disruptions import BreakdownPlan, get_active_graph, simulate_truck_breakdown
 from .generate_stops import generate_stops
@@ -247,12 +249,21 @@ def _run_breakdown_current() -> Optional[BreakdownPlan]:
     return plan
 
 
-def _metric_card(label: str, value: str, detail: str) -> None:
-    """Render a compact metric card."""
+def _escape(value: Any) -> str:
+    """Escape dynamic values before inserting them into HTML."""
+    return html.escape(str(value), quote=True)
+
+
+def _metric_card(label: str, value: str, detail: str, icon: str, delta: str) -> None:
+    """Render a premium KPI card."""
     st.markdown(
         f"""
         <div class="metric-card">
             <div class="metric-shine"></div>
+            <div class="metric-topline">
+                <span class="metric-icon">{_escape(icon)}</span>
+                <span class="metric-delta">{_escape(delta)}</span>
+            </div>
             <div class="metric-label">{label}</div>
             <div class="metric-value">{value}</div>
             <div class="metric-detail">{detail}</div>
@@ -405,6 +416,76 @@ def _render_page_styles() -> None:
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
+        .status-chip.active {
+            border-color: rgba(49, 217, 122, 0.34);
+            color: #dfffea;
+            background: rgba(49, 217, 122, 0.1);
+        }
+
+        .status-chip.warn {
+            border-color: rgba(255, 138, 31, 0.36);
+            color: #ffe7c7;
+            background: rgba(255, 138, 31, 0.11);
+        }
+
+        .sidebar-brand {
+            border: 1px solid rgba(45, 242, 230, 0.22);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 4px 0 18px;
+            background:
+                linear-gradient(140deg, rgba(45, 242, 230, 0.11), transparent 44%),
+                linear-gradient(180deg, rgba(22, 24, 25, 0.96), rgba(10, 11, 12, 0.98));
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.36);
+        }
+
+        .brand-mark {
+            display: inline-grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--route-cyan), #14b8a6);
+            color: #041011;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .brand-title {
+            color: var(--route-ink);
+            font-size: 1.05rem;
+            font-weight: 850;
+            line-height: 1.15;
+        }
+
+        .brand-subtitle {
+            color: var(--route-muted);
+            font-size: 0.78rem;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .control-section {
+            border-top: 1px solid #24282c;
+            margin: 16px 0 8px;
+            padding-top: 14px;
+        }
+
+        .control-kicker {
+            color: var(--route-cyan);
+            font-size: 0.72rem;
+            font-weight: 850;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .control-helper {
+            color: #87919b;
+            font-size: 0.78rem;
+            margin-top: 4px;
+        }
+
         .metric-card {
             position: relative;
             overflow: hidden;
@@ -415,6 +496,39 @@ def _render_page_styles() -> None:
             background:
                 linear-gradient(180deg, rgba(24, 25, 26, 0.98), rgba(12, 13, 14, 0.98));
             box-shadow: 0 14px 34px rgba(0, 0, 0, 0.36);
+        }
+
+        .metric-topline {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .metric-icon {
+            display: inline-grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(45, 242, 230, 0.22);
+            border-radius: 8px;
+            background: rgba(45, 242, 230, 0.1);
+            color: var(--route-cyan);
+            font-size: 0.95rem;
+            font-weight: 900;
+        }
+
+        .metric-delta {
+            border: 1px solid rgba(49, 217, 122, 0.22);
+            border-radius: 8px;
+            padding: 4px 8px;
+            background: rgba(49, 217, 122, 0.08);
+            color: #b9ffd1;
+            font-size: 0.72rem;
+            font-weight: 800;
+            white-space: nowrap;
         }
 
         .metric-card::before {
@@ -476,6 +590,23 @@ def _render_page_styles() -> None:
             box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
         }
 
+        .panel-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .panel-kicker {
+            color: var(--route-cyan);
+            font-size: 0.7rem;
+            font-weight: 850;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
         .section-title {
             color: var(--route-ink);
             font-size: 1rem;
@@ -487,6 +618,176 @@ def _render_page_styles() -> None:
             color: var(--route-muted);
             font-size: 0.88rem;
             line-height: 1.5;
+        }
+
+        .ops-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(45, 242, 230, 0.14);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            background: linear-gradient(180deg, rgba(17, 18, 19, 0.94), rgba(10, 11, 12, 0.96));
+        }
+
+        .legend-chip-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .legend-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid #292e33;
+            border-radius: 8px;
+            padding: 6px 9px;
+            color: #cbd5df;
+            font-size: 0.76rem;
+            font-weight: 750;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        .route-card {
+            border: 1px solid #2a2f33;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(180deg, rgba(24, 25, 26, 0.94), rgba(12, 13, 14, 0.94));
+        }
+
+        .route-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .route-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #f8fafc;
+            font-weight: 850;
+        }
+
+        .route-swatch {
+            width: 11px;
+            height: 11px;
+            border-radius: 3px;
+            box-shadow: 0 0 14px currentColor;
+        }
+
+        .route-status {
+            border-radius: 8px;
+            padding: 4px 7px;
+            background: rgba(49, 217, 122, 0.1);
+            color: #9effbd;
+            font-size: 0.68rem;
+            font-weight: 850;
+            letter-spacing: 0.04em;
+        }
+
+        .route-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .route-stat span,
+        .insight-row span {
+            display: block;
+            color: #7e8993;
+            font-size: 0.68rem;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .route-stat strong,
+        .insight-row strong {
+            display: block;
+            color: #f8fafc;
+            font-size: 0.88rem;
+            margin-top: 2px;
+        }
+
+        .insight-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid #282c30;
+            padding: 10px 0;
+        }
+
+        .insight-row:last-child {
+            border-bottom: 0;
+        }
+
+        .incident-panel {
+            border: 1px solid rgba(255, 87, 87, 0.32);
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            background:
+                linear-gradient(135deg, rgba(255, 87, 87, 0.14), transparent 36%),
+                linear-gradient(180deg, rgba(23, 17, 17, 0.98), rgba(12, 13, 14, 0.98));
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.38);
+        }
+
+        .incident-title {
+            color: #fff1f1;
+            font-size: 1.05rem;
+            font-weight: 850;
+            margin-bottom: 4px;
+        }
+
+        .incident-copy {
+            color: #ffc7c7;
+            font-size: 0.88rem;
+            line-height: 1.48;
+        }
+
+        .incident-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .incident-stat {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.22);
+        }
+
+        .incident-stat span {
+            color: #aab3bc;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .incident-stat strong {
+            display: block;
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-top: 2px;
         }
 
         .comparison-grid {
@@ -610,24 +911,192 @@ def _render_page_styles() -> None:
     )
 
 
+def _chip(label: str, active: bool = False, warn: bool = False) -> str:
+    """Return a status chip."""
+    modifier = " active" if active else " warn" if warn else ""
+    return f'<span class="status-chip{modifier}">{_escape(label)}</span>'
+
+
+def _render_sidebar_brand() -> None:
+    """Render the sidebar product identity."""
+    st.sidebar.markdown(
+        """
+        <div class="sidebar-brand">
+            <div class="brand-mark">RW</div>
+            <div class="brand-title">RouteWise Hillingdon</div>
+            <div class="brand-subtitle">Waste Operations Console<br>Live Planning Dashboard</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _sidebar_section(title: str, helper: str) -> None:
+    """Render a sidebar control section heading."""
+    st.sidebar.markdown(
+        f"""
+        <div class="control-section">
+            <div class="control-kicker">{_escape(title)}</div>
+            <div class="control-helper">{_escape(helper)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _render_header() -> None:
     """Render the dashboard header."""
+    closure = st.session_state.closure_scenario != NO_CLOSURE_LABEL
+    roads_label = "Road graph requested" if st.session_state.use_osmnx else "Offline distance mode"
+    recovery_label = "Recovery active" if st.session_state.breakdown_plan else "Recovery standby"
+    chips = "".join([
+        _chip("Synthetic demo mode", active=True),
+        _chip(roads_label, active=bool(st.session_state.use_osmnx)),
+        _chip("Closure active" if closure else "No closure", warn=closure),
+        _chip(recovery_label, warn=bool(st.session_state.breakdown_plan)),
+    ])
     st.markdown(
-        """
+        f"""
         <section class="route-hero">
-            <div class="hero-eyebrow">RouteIQ operations dashboard</div>
-            <h1 class="hero-title">Hillingdon waste route optimiser</h1>
+            <div class="hero-eyebrow">RouteWise Hillingdon / Live Planning Dashboard</div>
+            <h1 class="hero-title">Waste operations console</h1>
             <div class="hero-copy">
-                Synthetic collection planning with route optimisation, road-network fallback,
-                closure scenarios, school-window awareness, and breakdown recovery.
+                Premium dispatch view for synthetic collection planning, routing performance,
+                road closures, school-window sensitivity, and incident recovery.
             </div>
             <div class="hero-chip-row">
-                <span class="status-chip">Synthetic stops only</span>
-                <span class="status-chip">OpenStreetMap ready</span>
-                <span class="status-chip">Haversine fallback</span>
-                <span class="status-chip">No resident data</span>
+                {chips}
             </div>
         </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_map_toolbar(title: str, subtitle: str, solution: VrpSolution) -> None:
+    """Render the command bar above the map."""
+    active_routes = sum(1 for route in solution.routes if route)
+    source = "OSMnx road graph" if st.session_state.matrix_source == "osmnx" else "Haversine fallback"
+    st.markdown(
+        f"""
+        <div class="ops-toolbar">
+            <div>
+                <div class="panel-kicker">Live planning reference</div>
+                <div class="section-title">{_escape(title)}</div>
+                <div class="section-copy">{_escape(subtitle)}</div>
+            </div>
+            <div class="legend-chip-row">
+                <span class="legend-chip"><span class="legend-dot" style="color:#2df2e6;background:#2df2e6;"></span>{active_routes} active routes</span>
+                <span class="legend-chip"><span class="legend-dot" style="color:#ff5757;background:#ff5757;"></span>Closure</span>
+                <span class="legend-chip"><span class="legend-dot" style="color:#facc15;background:#facc15;"></span>School zone</span>
+                <span class="legend-chip"><span class="legend-dot" style="color:#ff8a1f;background:#ff8a1f;"></span>{_escape(source)}</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _route_cards(solution: VrpSolution) -> str:
+    """Build vehicle summary cards."""
+    cards = []
+    for vehicle_id, route in enumerate(solution.routes):
+        colour = VEHICLE_COLOURS[vehicle_id % len(VEHICLE_COLOURS)]
+        status = "ACTIVE" if route else "STANDBY"
+        cards.append(
+            f"""
+            <div class="route-card">
+                <div class="route-card-top">
+                    <div class="route-name"><span class="route-swatch" style="color:{colour};background:{colour};"></span>Truck {vehicle_id + 1}</div>
+                    <div class="route-status">{status}</div>
+                </div>
+                <div class="route-card-grid">
+                    <div class="route-stat"><span>Stops</span><strong>{len(route)}</strong></div>
+                    <div class="route-stat"><span>Distance</span><strong>{solution.distances_m[vehicle_id] / METRES_PER_KM:.1f} km</strong></div>
+                    <div class="route-stat"><span>Finish</span><strong>{format_minutes(solution.finish_clock_minutes[vehicle_id])}</strong></div>
+                </div>
+            </div>
+            """
+        )
+    return "".join(cards)
+
+
+def _render_vehicle_summary_panel(solution: VrpSolution) -> None:
+    """Render right-side vehicle operations panel."""
+    st.markdown(
+        f"""
+        <div class="section-panel">
+            <div class="panel-head">
+                <div>
+                    <div class="panel-kicker">Fleet allocation</div>
+                    <div class="section-title">Active routes</div>
+                    <div class="section-copy">Per-vehicle route loadout and ETA snapshot.</div>
+                </div>
+                {_chip("Optimised", active=True)}
+            </div>
+            {_route_cards(solution)}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_scenario_insights_panel(
+    peak_active: bool,
+    school_active: bool,
+) -> None:
+    """Render scenario state and planning insights."""
+    closure_name = st.session_state.closure_scenario
+    closure_active = closure_name != NO_CLOSURE_LABEL
+    breakdown_active = bool(st.session_state.breakdown_plan)
+    rows = [
+        ("Road mode", "Road graph" if st.session_state.matrix_source == "osmnx" else "Fallback", st.session_state.matrix_source == "osmnx"),
+        ("Closure", closure_name if closure_active else "None active", closure_active),
+        ("Peak traffic", "Active window" if peak_active else "Inactive", peak_active),
+        ("School overlay", "Active window" if school_active else "Inactive", school_active),
+        ("Recovery", "Incident plan ready" if breakdown_active else "Standby", breakdown_active),
+    ]
+    body = "".join(
+        f"""
+        <div class="insight-row">
+            <div><span>{_escape(label)}</span><strong>{_escape(value)}</strong></div>
+            {_chip("Active", active=True) if active else _chip("Ready")}
+        </div>
+        """
+        for label, value, active in rows
+    )
+    st.markdown(
+        f"""
+        <div class="section-panel">
+            <div class="panel-kicker">Scenario intelligence</div>
+            <div class="section-title">Planning conditions</div>
+            <div class="section-copy">Live switches that influence the current dispatch view.</div>
+            {body}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_incident_panel(plan: BreakdownPlan) -> None:
+    """Render a premium incident response summary."""
+    absorbed = sum(len(stops) for truck, stops in plan.reassigned_by_vehicle.items() if truck != plan.broken_truck)
+    recovery_km = 0.0 if plan.recovery_solution is None else plan.recovery_solution.total_distance_m / METRES_PER_KM
+    st.markdown(
+        f"""
+        <div class="incident-panel">
+            <div class="panel-kicker">Incident response</div>
+            <div class="incident-title">Truck {plan.broken_truck + 1} breakdown recovery</div>
+            <div class="incident-copy">
+                Truck {plan.broken_truck + 1} completed {len(plan.completed_stops)} stops before going out of service.
+                Remaining work has been redistributed across {len(plan.active_trucks)} active trucks.
+            </div>
+            <div class="incident-grid">
+                <div class="incident-stat"><span>Unserved stops</span><strong>{len(plan.unfinished_stops)}</strong></div>
+                <div class="incident-stat"><span>Absorbed stops</span><strong>{absorbed}</strong></div>
+                <div class="incident-stat"><span>Recovery distance</span><strong>{recovery_km:.1f} km</strong></div>
+            </div>
+        </div>
         """,
         unsafe_allow_html=True,
     )
@@ -709,13 +1178,25 @@ def _render_metrics(stops: pd.DataFrame, solution: VrpSolution, baseline_m: floa
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        _metric_card("Kilometres saved", f"{km_saved:.1f} km", f"{baseline_km:.1f} to {optimised_km:.1f} km")
+        _metric_card(
+            "Kilometres saved",
+            f"{km_saved:.1f} km",
+            f"{baseline_km:.1f} to {optimised_km:.1f} km",
+            "KM",
+            "Route delta",
+        )
     with col2:
-        _metric_card("CO2 saved", f"{co2_saved_kg:.1f} kg", "Based on 1.3 kg per km")
+        _metric_card("CO2 saved", f"{co2_saved_kg:.1f} kg", "Based on 1.3 kg per km", "CO2", "Lower emissions")
     with col3:
-        _metric_card("Hours saved", f"{hours_saved:.1f} h", f"Baseline {_duration_label(int(baseline_minutes))}")
+        _metric_card(
+            "Hours saved",
+            f"{hours_saved:.1f} h",
+            f"Baseline {_duration_label(int(baseline_minutes))}",
+            "HR",
+            "Shift impact",
+        )
     with col4:
-        _metric_card("Trucks used", str(trucks_used), f"{st.session_state.num_vehicles} available")
+        _metric_card("Trucks used", str(trucks_used), f"{st.session_state.num_vehicles} available", "RCV", "Fleet active")
 
 
 def _vehicle_table(solution: VrpSolution) -> pd.DataFrame:
@@ -810,7 +1291,16 @@ def build_breakdown_recovery_report(solution: VrpSolution, plan: BreakdownPlan) 
 def render_recovery_report(solution: VrpSolution, plan: BreakdownPlan) -> None:
     """Render the under-map operational recovery report."""
     markdown, detail = build_breakdown_recovery_report(solution, plan)
-    st.markdown(markdown)
+    st.markdown(
+        f"""
+        <div class="section-panel">
+            <div class="panel-kicker">Recovery report</div>
+            <div class="section-title">Redistribution plan</div>
+            <div class="section-copy">{_escape(markdown.replace("**", "").replace(chr(10), " "))}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.dataframe(
         detail,
         use_container_width=True,
@@ -824,16 +1314,25 @@ def render_operational_summary(solution: VrpSolution) -> None:
     truck_count = sum(1 for route in solution.routes if route)
     stop_count = sum(len(route) for route in solution.routes)
     st.markdown(
-        f"**Operational summary**\n\n"
-        f"The current plan serves {stop_count} synthetic stops using {truck_count} active trucks. "
-        f"Routes include depot returns for tipping where the load threshold requires it."
+        f"""
+        <div class="section-panel">
+            <div class="panel-kicker">Operational note</div>
+            <div class="section-title">Current dispatch summary</div>
+            <div class="section-copy">
+                The current plan serves <strong>{stop_count}</strong> synthetic stops using
+                <strong>{truck_count}</strong> active trucks. Routes include depot returns
+                for tipping where the load threshold requires it.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
 def _render_sidebar() -> None:
     """Render sidebar controls."""
-    st.sidebar.header("Scenario setup")
-    st.sidebar.caption("Choose the size and start time for the synthetic collection round.")
+    _render_sidebar_brand()
+    _sidebar_section("Scenario", "Set round size, start time, tipping threshold, and repeatable seed.")
     st.sidebar.slider("Stops", MIN_NUM_STOPS, MAX_NUM_STOPS, key="num_stops")
     st.sidebar.slider("Vehicles", MIN_NUM_VEHICLES, MAX_NUM_VEHICLES, key="num_vehicles")
     st.sidebar.time_input("Departure time", key="departure_time_input")
@@ -848,14 +1347,13 @@ def _render_sidebar() -> None:
     )
     st.sidebar.number_input("Seed", min_value=0, max_value=9999, step=1, key="seed")
 
-    st.sidebar.header("Routing options")
-    st.sidebar.caption("First road-graph load may take 10-30 seconds.")
+    _sidebar_section("Routing", "Toggle road graph, zoning, school-window, and peak-traffic behaviour.")
     st.sidebar.toggle("Use real road network", key="use_osmnx")
     st.sidebar.toggle("Plan by geographic zones", key="use_zoning")
     st.sidebar.toggle("Avoid school-sensitive times", key="use_school_windows")
     st.sidebar.toggle("Apply peak traffic timing", key="use_peak_hours")
 
-    st.sidebar.header("Disruption options")
+    _sidebar_section("Disruptions", "Model closures and vehicle recovery without changing the base data.")
     st.sidebar.selectbox(
         "Road closure scenario",
         list(ROAD_CLOSURE_SCENARIOS.keys()),
@@ -885,7 +1383,7 @@ def _render_sidebar() -> None:
         with st.spinner("Redistributing unfinished stops..."):
             _run_breakdown_current()
 
-    st.sidebar.header("Demo helpers")
+    _sidebar_section("Demo tools", "Use preset values for a reliable judging walkthrough.")
     if st.sidebar.button("Load stage demo preset", use_container_width=True):
         _apply_demo_preset()
     if st.sidebar.button("Optimise routes", type="primary", use_container_width=True):
@@ -929,10 +1427,6 @@ def main() -> None:
     ])
 
     with normal_tab:
-        _render_section_intro(
-            "Normal plan",
-            "Optimised service routes for the current synthetic collection round.",
-        )
         fmap, geometry_warnings = build_map(
             stops=stops,
             solution=solution,
@@ -947,20 +1441,26 @@ def main() -> None:
         )
         for message in sorted(set(geometry_warnings)):
             st.warning(message)
-        _render_folium_map(fmap, "normal_plan_map")
+        _render_map_toolbar(
+            "Live route map",
+            "Optimised service routes for the current synthetic collection round.",
+            solution,
+        )
+        map_col, ops_col = st.columns([3, 1], gap="medium")
+        with map_col:
+            _render_folium_map(fmap, "normal_plan_map")
+        with ops_col:
+            _render_vehicle_summary_panel(solution)
+            _render_scenario_insights_panel(peak_zones_active, school_zones_active)
         render_operational_summary(solution)
 
     with disruption_tab:
         if st.session_state.closure_scenario == NO_CLOSURE_LABEL:
-            st.info("Select a closure scenario in the sidebar and optimise to show a disrupted route.")
-        else:
             _render_section_intro(
                 "Closure scenario plan",
-                (
-                    f"Active closure: {st.session_state.closure_scenario}. "
-                    f"Closed segments: {len(st.session_state.closed_edges)}."
-                ),
+                "Select a closure scenario in the sidebar and optimise to show a disrupted route.",
             )
+        else:
             fmap, geometry_warnings = build_map(
                 stops=stops,
                 solution=solution,
@@ -975,7 +1475,20 @@ def main() -> None:
             )
             for message in sorted(set(geometry_warnings)):
                 st.warning(message)
-            _render_folium_map(fmap, "closure_plan_map")
+            _render_map_toolbar(
+                "Closure scenario map",
+                (
+                    f"Active closure: {st.session_state.closure_scenario}. "
+                    f"Closed segments: {len(st.session_state.closed_edges)}."
+                ),
+                solution,
+            )
+            map_col, ops_col = st.columns([3, 1], gap="medium")
+            with map_col:
+                _render_folium_map(fmap, "closure_plan_map")
+            with ops_col:
+                _render_scenario_insights_panel(peak_zones_active, school_zones_active)
+                _render_vehicle_summary_panel(solution)
             render_operational_summary(solution)
 
     with breakdown_tab:
@@ -987,10 +1500,6 @@ def main() -> None:
         else:
             if plan.warning:
                 st.warning(plan.warning)
-            _render_section_intro(
-                "Breakdown recovery plan",
-                f"Truck {plan.broken_truck + 1} is out of service and unfinished stops are reassigned.",
-            )
             fmap, geometry_warnings = build_map(
                 stops=stops,
                 solution=solution,
@@ -1007,13 +1516,17 @@ def main() -> None:
             )
             for message in sorted(set(geometry_warnings)):
                 st.warning(message)
-            _render_folium_map(fmap, "breakdown_plan_map")
-            cols = st.columns(4)
-            cols[0].metric("Broken truck", f"Truck {plan.broken_truck + 1}")
-            cols[1].metric("Completed first", len(plan.completed_stops))
-            cols[2].metric("Reassigned stops", len(plan.unfinished_stops))
-            recovery_km = 0.0 if plan.recovery_solution is None else plan.recovery_solution.total_distance_m / METRES_PER_KM
-            cols[3].metric("Recovery distance", f"{recovery_km:.1f} km")
+            _render_map_toolbar(
+                "Breakdown recovery map",
+                f"Truck {plan.broken_truck + 1} is out of service and unfinished stops are reassigned.",
+                solution,
+            )
+            map_col, ops_col = st.columns([3, 1], gap="medium")
+            with map_col:
+                _render_folium_map(fmap, "breakdown_plan_map")
+            with ops_col:
+                _render_incident_panel(plan)
+                _render_scenario_insights_panel(peak_zones_active, school_zones_active)
             st.dataframe(
                 _breakdown_table(solution, plan),
                 use_container_width=True,
