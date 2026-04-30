@@ -254,7 +254,7 @@ def _escape(value: Any) -> str:
     return html.escape(str(value), quote=True)
 
 
-def _metric_card(label: str, value: str, detail: str, icon: str, delta: str) -> None:
+def _metric_card(label: str, value: str, detail: str, icon: str = "OP", delta: str = "Live") -> None:
     """Render a premium KPI card."""
     st.markdown(
         f"""
