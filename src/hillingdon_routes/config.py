@@ -124,29 +124,29 @@ EMPTY_ROUTE_FINISH_LOAD_PERCENT: int = 0
 
 # Map colours
 VEHICLE_COLOURS = [
-    "#2563eb",
-    "#dc2626",
-    "#16a34a",
-    "#9333ea",
-    "#f97316",
+    "#2df2e6",
+    "#ff8a1f",
+    "#31d97a",
+    "#a78bfa",
+    "#ff5757",
 ]
 WARD_COLOURS = {
-    "Hayes": "#0f766e",
-    "Yiewsley": "#0369a1",
-    "Uxbridge": "#7c3aed",
-    "Ruislip": "#c2410c",
-    "Harefield": "#15803d",
-    "Ickenham": "#be123c",
+    "Hayes": "#2dd4bf",
+    "Yiewsley": "#38bdf8",
+    "Uxbridge": "#a78bfa",
+    "Ruislip": "#fb923c",
+    "Harefield": "#31d97a",
+    "Ickenham": "#fb7185",
 }
-DEFAULT_STOP_COLOUR: str = "#475569"
+DEFAULT_STOP_COLOUR: str = "#94a3b8"
 DEPOT_ICON_COLOUR: str = "green"
 TIP_ICON_COLOUR: str = "orange"
 ROAD_CLOSURE_COLOUR: str = "#111827"
-ROAD_CLOSURE_LINE_COLOUR: str = "#dc2626"
-BROKEN_TRUCK_COLOUR: str = "#111827"
+ROAD_CLOSURE_LINE_COLOUR: str = "#ff5757"
+BROKEN_TRUCK_COLOUR: str = "#f8fafc"
 BREAKDOWN_REASSIGN_TIME_LIMIT_SECONDS: int = 2
-PEAK_TRAFFIC_ZONE_COLOUR: str = "#dc2626"
-PEAK_TRAFFIC_ZONE_FILL_OPACITY: float = 0.14
+PEAK_TRAFFIC_ZONE_COLOUR: str = "#ff5757"
+PEAK_TRAFFIC_ZONE_FILL_OPACITY: float = 0.18
 SCHOOL_ZONE_COLOUR: str = "#facc15"
 SCHOOL_ZONE_FILL_OPACITY: float = 0.16
 

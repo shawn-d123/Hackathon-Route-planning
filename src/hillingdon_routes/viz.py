@@ -450,12 +450,13 @@ def _add_legend(
         bottom: 24px;
         left: 24px;
         z-index: 9999;
-        background: white;
-        border: 1px solid #cbd5e1;
+        background: rgba(9,10,11,0.92);
+        border: 1px solid rgba(45,242,230,0.22);
         border-radius: 6px;
         padding: 8px 10px;
         font-size: 12px;
-        color: #111827;">
+        color: #f8fafc;
+        box-shadow: 0 14px 30px rgba(0,0,0,0.38);">
         <strong>Routes</strong>
     """ + "".join(rows) + "</div>"
     fmap.get_root().html.add_child(folium.Element(html))
@@ -476,7 +477,12 @@ def build_map(
     school_points: Optional[Sequence[Coordinate]] = None,
 ) -> Tuple[folium.Map, List[str]]:
     """Build the interactive route map and return geometry warnings."""
-    fmap = folium.Map(location=depot, zoom_start=DEFAULT_ZOOM, tiles="OpenStreetMap")
+    fmap = folium.Map(location=depot, zoom_start=DEFAULT_ZOOM, tiles=None)
+    folium.TileLayer(
+        tiles="CartoDB dark_matter",
+        name="Dark map",
+        control=False,
+    ).add_to(fmap)
     warnings: List[str] = []
     school_adjacent_stop_ids = school_adjacent_stop_ids or set()
     closed_edges = closed_edges or []
