@@ -321,7 +321,8 @@ def _render_page_styles() -> None:
         }
 
         .block-container {
-            max-width: 1500px;
+            width: min(96vw, 1680px);
+            max-width: 1680px;
             padding-top: 1.5rem;
             padding-bottom: 3rem;
         }
@@ -440,16 +441,18 @@ def _render_page_styles() -> None:
         }
 
         .brand-mark {
-            display: inline-grid;
-            place-items: center;
-            width: 38px;
-            height: 38px;
+            width: 52px;
+            height: 52px;
             border-radius: 8px;
             margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--route-cyan), #14b8a6);
-            color: #041011;
-            font-weight: 900;
-            letter-spacing: 0;
+            overflow: hidden;
+            filter: drop-shadow(0 0 18px rgba(45, 242, 230, 0.22));
+        }
+
+        .brand-mark svg {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         .brand-title {
@@ -897,12 +900,59 @@ def _render_page_styles() -> None:
         }
 
         @media (max-width: 760px) {
+            .block-container {
+                width: min(100vw, 100%);
+                padding-left: 0.8rem;
+                padding-right: 0.8rem;
+            }
+
             .hero-title {
                 font-size: 2rem;
             }
 
             .route-hero {
                 padding: 22px 20px;
+            }
+
+            .route-card-grid,
+            .incident-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-row,
+            .insight-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .ops-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (min-width: 1500px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .metric-value {
+                font-size: 2.25rem;
+            }
+
+            .route-card-grid {
+                grid-template-columns: repeat(3, minmax(88px, 1fr));
+            }
+        }
+
+        @media (max-width: 1180px) {
+            .route-card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .incident-grid {
+                grid-template-columns: 1fr;
             }
         }
         </style>
@@ -922,7 +972,22 @@ def _render_sidebar_brand() -> None:
     st.sidebar.markdown(
         """
         <div class="sidebar-brand">
-            <div class="brand-mark">RW</div>
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 64 64" role="img">
+                    <defs>
+                        <linearGradient id="rwMark" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#2df2e6"/>
+                            <stop offset="1" stop-color="#ff8a1f"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="3" y="3" width="58" height="58" rx="15" fill="#071010" stroke="rgba(45,242,230,.42)" stroke-width="2"/>
+                    <path d="M17 41V24.5c0-3.6 2.9-6.5 6.5-6.5h13.8c5.4 0 9.7 4.3 9.7 9.7 0 4.4-3 8.2-7.1 9.3l7.3 7.9h-8.9l-6.5-7.2h-7.5V41H17Z" fill="url(#rwMark)"/>
+                    <path d="M24.3 30.8h12.2c2 0 3.6-1.4 3.6-3.3 0-1.9-1.6-3.3-3.6-3.3H24.3v6.6Z" fill="#050606"/>
+                    <circle cx="22" cy="45.5" r="3.6" fill="#2df2e6"/>
+                    <circle cx="43" cy="45.5" r="3.6" fill="#ff8a1f"/>
+                    <path d="M20 45.5h25" stroke="#f8fafc" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+                </svg>
+            </div>
             <div class="brand-title">RouteWise Hillingdon</div>
             <div class="brand-subtitle">Waste Operations Console<br>Live Planning Dashboard</div>
         </div>

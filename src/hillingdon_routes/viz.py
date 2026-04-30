@@ -36,6 +36,60 @@ from .solver import VrpSolution
 Coordinate = Tuple[float, float]
 
 
+def _map_icon_html(kind: str, colour: str, label: str = "") -> str:
+    """Return a compact inline SVG marker for Folium DivIcon."""
+    if kind == "depot":
+        path = (
+            '<path d="M15 34V20h19l5 6h6v8h-4.5" fill="none" stroke="#061012" stroke-width="3" '
+            'stroke-linecap="round" stroke-linejoin="round"/>'
+            '<circle cx="22" cy="35" r="4" fill="#061012"/>'
+            '<circle cx="38" cy="35" r="4" fill="#061012"/>'
+            '<path d="M20 16h14v9H20z" fill="#061012" opacity=".9"/>'
+        )
+        size = 42
+    elif kind == "tip":
+        path = (
+            '<path d="M20 17h20l-2 22H22L20 17Z" fill="none" stroke="#061012" stroke-width="3" '
+            'stroke-linejoin="round"/>'
+            '<path d="M18 17h24M25 13h10M27 22v11M33 22v11" stroke="#061012" stroke-width="3" '
+            'stroke-linecap="round"/>'
+        )
+        size = 34
+    elif kind == "incident":
+        path = (
+            '<path d="M30 13 47 43H13L30 13Z" fill="none" stroke="#fff" stroke-width="3" '
+            'stroke-linejoin="round"/>'
+            '<path d="M30 23v10M30 38v1" stroke="#fff" stroke-width="4" stroke-linecap="round"/>'
+        )
+        size = 40
+    else:
+        path = (
+            '<path d="M18 33V20h21l5 6v7h-3.5" fill="none" stroke="#061012" stroke-width="3" '
+            'stroke-linecap="round" stroke-linejoin="round"/>'
+            '<circle cx="24" cy="35" r="4" fill="#061012"/>'
+            '<circle cx="39" cy="35" r="4" fill="#061012"/>'
+        )
+        size = 32
+
+    badge = ""
+    if label:
+        badge = (
+            f'<div style="position:absolute;right:-6px;top:-7px;min-width:18px;height:18px;'
+            f'padding:0 4px;border-radius:9px;background:#050606;color:#fff;border:1px solid rgba(255,255,255,.9);'
+            f'font-size:10px;font-weight:900;line-height:17px;text-align:center;">{label}</div>'
+        )
+
+    return f"""
+    <div style="position:relative;width:{size}px;height:{size}px;">
+        <svg viewBox="0 0 60 60" width="{size}" height="{size}" style="display:block;filter:drop-shadow(0 0 14px {colour});">
+            <circle cx="30" cy="30" r="24" fill="{colour}" stroke="rgba(255,255,255,.92)" stroke-width="3"/>
+            {path}
+        </svg>
+        {badge}
+    </div>
+    """
+
+
 def _is_in_time_window(clock_minutes: int, windows: Sequence[Tuple[int, int]]) -> bool:
     """Return whether a clock time falls within any configured window."""
     return any(start <= clock_minutes < end for start, end in windows)
@@ -303,14 +357,7 @@ def draw_breakdown_marker_on_map(
     """Draw the broken truck location."""
     if breakdown_plan is None:
         return
-    html = """
-    <div style="
-        width:34px;height:34px;border-radius:17px;
-        display:grid;place-items:center;
-        background:#ff5757;color:#fff;font-weight:900;
-        border:2px solid #fff;
-        box-shadow:0 0 22px rgba(255,87,87,0.75);">!</div>
-    """
+    html = _map_icon_html("incident", "#ff5757")
     folium.Marker(
         location=breakdown_plan.breakdown_location,
         tooltip=f"Vehicle {breakdown_plan.broken_truck + 1} breakdown",
@@ -318,7 +365,7 @@ def draw_breakdown_marker_on_map(
             f"Vehicle {breakdown_plan.broken_truck + 1} out of service after "
             f"{breakdown_plan.breakdown_after} completed stops"
         ),
-        icon=folium.DivIcon(html=html, icon_size=(34, 34), icon_anchor=(17, 17)),
+        icon=folium.DivIcon(html=html, icon_size=(40, 40), icon_anchor=(20, 20)),
     ).add_to(fmap)
 
 
@@ -337,24 +384,9 @@ def _numbered_stop_marker(
     order: int,
     colour: str,
 ) -> folium.DivIcon:
-    """Create a compact numbered marker."""
-    html = f"""
-    <div style="
-        background:{colour};
-        color:#050606;
-        border:2px solid rgba(255,255,255,0.92);
-        border-radius:14px;
-        width:28px;
-        height:28px;
-        line-height:24px;
-        text-align:center;
-        font-size:12px;
-        font-weight:900;
-        box-shadow:0 0 16px {colour};">
-        {order}
-    </div>
-    """
-    return folium.DivIcon(html=html, icon_size=(28, 28), icon_anchor=(14, 14))
+    """Create a compact numbered truck marker."""
+    html = _map_icon_html("stop", colour, str(order))
+    return folium.DivIcon(html=html, icon_size=(40, 40), icon_anchor=(16, 16))
 
 
 def _add_stop_markers(
@@ -417,19 +449,12 @@ def _add_tip_markers(
         else:
             location = (DEPOT_LAT, DEPOT_LNG)
             label = "Tip at depot"
-        tip_html = """
-        <div style="
-            width:30px;height:30px;border-radius:15px;
-            display:grid;place-items:center;
-            background:#ff8a1f;color:#041011;font-weight:900;
-            border:2px solid #fff;
-            box-shadow:0 0 16px rgba(255,138,31,0.72);">T</div>
-        """
+        tip_html = _map_icon_html("tip", "#ff8a1f")
         folium.Marker(
             location=location,
             tooltip=label,
             popup=f"{label}, vehicle {tip.vehicle + 1}",
-            icon=folium.DivIcon(html=tip_html, icon_size=(30, 30), icon_anchor=(15, 15)),
+            icon=folium.DivIcon(html=tip_html, icon_size=(34, 34), icon_anchor=(17, 17)),
         ).add_to(fmap)
 
 
@@ -505,19 +530,12 @@ def build_map(
     school_adjacent_stop_ids = school_adjacent_stop_ids or set()
     closed_edges = closed_edges or []
 
-    depot_html = """
-    <div style="
-        width:36px;height:36px;border-radius:18px;
-        display:grid;place-items:center;
-        background:#2df2e6;color:#041011;font-weight:900;
-        border:2px solid #fff;
-        box-shadow:0 0 22px rgba(45,242,230,0.72);">D</div>
-    """
+    depot_html = _map_icon_html("depot", "#2df2e6")
     folium.Marker(
         location=depot,
         tooltip=DEPOT_NAME,
         popup=DEPOT_NAME,
-        icon=folium.DivIcon(html=depot_html, icon_size=(36, 36), icon_anchor=(18, 18)),
+        icon=folium.DivIcon(html=depot_html, icon_size=(42, 42), icon_anchor=(21, 21)),
     ).add_to(fmap)
 
     draw_peak_traffic_zones_on_map(fmap, get_peak_traffic_zones(), peak_zones_active)
