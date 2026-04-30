@@ -500,12 +500,7 @@ def build_map(
     school_points: Optional[Sequence[Coordinate]] = None,
 ) -> Tuple[folium.Map, List[str]]:
     """Build the interactive route map and return geometry warnings."""
-    fmap = folium.Map(location=depot, zoom_start=DEFAULT_ZOOM, tiles=None)
-    folium.TileLayer(
-        tiles="CartoDB dark_matter",
-        name="Dark map",
-        control=False,
-    ).add_to(fmap)
+    fmap = folium.Map(location=depot, zoom_start=DEFAULT_ZOOM, tiles="OpenStreetMap")
     warnings: List[str] = []
     school_adjacent_stop_ids = school_adjacent_stop_ids or set()
     closed_edges = closed_edges or []

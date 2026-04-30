@@ -1004,39 +1004,41 @@ def _route_cards(solution: VrpSolution) -> str:
         colour = VEHICLE_COLOURS[vehicle_id % len(VEHICLE_COLOURS)]
         status = "ACTIVE" if route else "STANDBY"
         cards.append(
-            f"""
-            <div class="route-card">
-                <div class="route-card-top">
-                    <div class="route-name"><span class="route-swatch" style="color:{colour};background:{colour};"></span>Truck {vehicle_id + 1}</div>
-                    <div class="route-status">{status}</div>
-                </div>
-                <div class="route-card-grid">
-                    <div class="route-stat"><span>Stops</span><strong>{len(route)}</strong></div>
-                    <div class="route-stat"><span>Distance</span><strong>{solution.distances_m[vehicle_id] / METRES_PER_KM:.1f} km</strong></div>
-                    <div class="route-stat"><span>Finish</span><strong>{format_minutes(solution.finish_clock_minutes[vehicle_id])}</strong></div>
-                </div>
-            </div>
-            """
+            (
+                '<div class="route-card">'
+                '<div class="route-card-top">'
+                f'<div class="route-name"><span class="route-swatch" style="color:{colour};background:{colour};"></span>Truck {vehicle_id + 1}</div>'
+                f'<div class="route-status">{status}</div>'
+                "</div>"
+                '<div class="route-card-grid">'
+                f'<div class="route-stat"><span>Stops</span><strong>{len(route)}</strong></div>'
+                f'<div class="route-stat"><span>Distance</span><strong>{solution.distances_m[vehicle_id] / METRES_PER_KM:.1f} km</strong></div>'
+                f'<div class="route-stat"><span>Finish</span><strong>{format_minutes(solution.finish_clock_minutes[vehicle_id])}</strong></div>'
+                "</div>"
+                "</div>"
+            )
         )
     return "".join(cards)
 
 
 def _render_vehicle_summary_panel(solution: VrpSolution) -> None:
     """Render right-side vehicle operations panel."""
+    route_cards = _route_cards(solution)
+    panel = (
+        '<div class="section-panel">'
+        '<div class="panel-head">'
+        "<div>"
+        '<div class="panel-kicker">Fleet allocation</div>'
+        '<div class="section-title">Active routes</div>'
+        '<div class="section-copy">Per-vehicle route loadout and ETA snapshot.</div>'
+        "</div>"
+        f'{_chip("Optimised", active=True)}'
+        "</div>"
+        f"{route_cards}"
+        "</div>"
+    )
     st.markdown(
-        f"""
-        <div class="section-panel">
-            <div class="panel-head">
-                <div>
-                    <div class="panel-kicker">Fleet allocation</div>
-                    <div class="section-title">Active routes</div>
-                    <div class="section-copy">Per-vehicle route loadout and ETA snapshot.</div>
-                </div>
-                {_chip("Optimised", active=True)}
-            </div>
-            {_route_cards(solution)}
-        </div>
-        """,
+        panel,
         unsafe_allow_html=True,
     )
 
