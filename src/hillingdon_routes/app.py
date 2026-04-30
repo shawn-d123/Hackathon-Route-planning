@@ -321,9 +321,11 @@ def _render_page_styles() -> None:
         }
 
         .block-container {
-            width: min(96vw, 1680px);
-            max-width: 1680px;
+            width: 100%;
+            max-width: 1600px;
             padding-top: 1.5rem;
+            padding-left: 1.4rem;
+            padding-right: 1.4rem;
             padding-bottom: 3rem;
         }
 
